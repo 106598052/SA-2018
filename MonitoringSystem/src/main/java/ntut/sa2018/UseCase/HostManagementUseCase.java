@@ -48,8 +48,8 @@ public class HostManagementUseCase {
         return hostList;
     }
 
-    public String AddHost(HostInputDTO hostInputDTO){
-        String result = "{ \"result\" : true }" ;
+    public boolean AddHost(HostInputDTO hostInputDTO){
+        boolean result;
         /*WARNING!!!! check method, interval  and contact wait jsp inplement*/
         Contact contact=new ContactBuilder.newInstance().
                 contactName("賴偉程").
@@ -68,31 +68,25 @@ public class HostManagementUseCase {
                     build();
             this.hostRepository.addHost(host);
             this.hostList = hostRepository.getHost();
-            result = "{ \"result\" : true , \"data\" : [" + getHostListJson(GetHostListDTO()) + " }" ;
+            result = true;
         }
         catch (Exception ex){
             System.out.println("add host fails, result = " + ex.toString());
-            result = "{ \"result\" : false }" ;
+            result = false;
         }
         return result;
     }
 
-    public String DeleteHost(String hostIp){
-        String result = "{ \"result\" : true }" ;
+    public boolean DeleteHost(String hostIp){
+        boolean result ;
         try {
             this.hostRepository.deleteHost(hostIp);
             this.hostList = hostRepository.getHost();
-            result = "{ \"result\" : true , \"data\" : [" + getHostListJson(GetHostListDTO()) + " }" ;
+            result = true;
         }catch(Exception ex){
             System.out.println("delete host fails, result = " + ex.toString());
-            result = "{ \"result\" : false }" ;
+            result = false;
         }
         return result;
-    }
-
-    public String getHostListJson(ArrayList<HostOutputDTO> hostList){
-        Gson gson = new Gson();
-        String json = gson.toJson(hostList);
-        return json;
     }
 }

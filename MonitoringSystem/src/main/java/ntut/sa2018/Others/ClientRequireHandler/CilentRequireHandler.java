@@ -1,8 +1,6 @@
 package ntut.sa2018.Others.ClientRequireHandler;
 
-import ntut.sa2018.DTO.HostInputDTO;
 import com.google.gson.Gson;
-import ntut.sa2018.DTO.HostOutputDTO;
 import ntut.sa2018.UseCase.HostManagementUseCase;
 import ntut.sa2018.UseCase.MonitoringUseCase;
 
@@ -43,13 +41,15 @@ public class CilentRequireHandler implements Runnable{
 
                 /*socket get action monitor, return all the host*/
                 if(action.equals("monitor")){
-                    response =  "{ \"result\" : "+getHostListJson(HostManagementUseCase.Use().GetHostListDTO())+" }";
+                    response =  "{ \"result\" : "+ new Presenter().getHostListJson(HostManagementUseCase.Use().GetHostListDTO())+" }";
                 }
 
                 /*socket get action create, create a host*/
                 else if(action.equals("create")){
-                    HostInputDTO hostInputDTO=setHostInputDTO(clientMsg);
-                    response = HostManagementUseCase.Use().AddHost(hostInputDTO);
+                    if(HostManagementUseCase.Use().AddHost(new Presenter().setHostInputDTO(clientMsg)))
+                        response = new Presenter().getHostListJson(HostManagementUseCase.Use().GetHostListDTO());
+                    else
+                        response = "{ \"result\" : false }" ;
                     MonitoringUseCase.Use().ReStart();
                 }
 
@@ -57,7 +57,10 @@ public class CilentRequireHandler implements Runnable{
                 else if(action.equals("delete")){
                     String ip = clientMsg.get("hostIp");
                     System.out.println(ip);
-                    response = HostManagementUseCase.Use().DeleteHost(ip);
+                    if(HostManagementUseCase.Use().DeleteHost(ip))
+                        response = new Presenter().getHostListJson(HostManagementUseCase.Use().GetHostListDTO());
+                    else
+                        response = "{ \"result\" : false }" ;
                     MonitoringUseCase.Use().ReStart();
                 }
 
@@ -81,19 +84,4 @@ public class CilentRequireHandler implements Runnable{
             clientOutputStreams.remove(writer);
         }
     }
-
-    public String getHostListJson(ArrayList<HostOutputDTO> hostList){
-        Gson gson = new Gson();
-        String json = gson.toJson(hostList);
-        return json;
-    }
-
-    public HostInputDTO setHostInputDTO(Map<String,String> clientMsg){
-        HostInputDTO hostInputDTO =new HostInputDTO();
-        hostInputDTO.hostIp=clientMsg.get("hostIp");
-        hostInputDTO.hostName=clientMsg.get("hostName");
-        return  hostInputDTO;
-    }
-
-
 }
