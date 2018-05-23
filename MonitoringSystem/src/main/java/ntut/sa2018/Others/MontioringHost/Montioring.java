@@ -1,25 +1,23 @@
 package ntut.sa2018.Others.MontioringHost;
 
-import com.google.gson.Gson;
 import ntut.sa2018.Domain.Host.Host;
-import ntut.sa2018.UseCase.CheckHostUseCase;
+import ntut.sa2018.Others.CheckHostMethod.CheckDirector;
 
-import javax.management.monitor.Monitor;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimerTask;
 
 public class Montioring extends TimerTask{
     private Host host;
-    private CheckHostUseCase checkHostUseCase;
     public Montioring(Host h){
         this.host = h;
-        this.checkHostUseCase = new CheckHostUseCase();
     }
+
     @Override
     public void run() {
-        checkHostUseCase.run(host);
+        host.setHostStatus(CheckDirector.PingBuild(host.getCheckMethod()).execute(host.getHostIP()));
+        host.setLastCheck(new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss").format(Calendar.getInstance().getTime()));
+        //check host status has change or not
+        System.out.println("host name = " + host.getHostName() + ", status = " + host.getHostStatus() + ", checktime = " + host.getLastCheck());
     }
-
-
 }

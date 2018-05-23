@@ -18,46 +18,7 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
-
-        /*get host list use case
-        GetHostListUseCase getHostUseCase = new GetHostListUseCase();
-        getHostUseCase.run();*/
-
-        /*add host use case
-        AddHostUseCase addHostUseCase = new AddHostUseCase();
-        addHostUseCase.run("Local","140.124.181.15","ping",5);*/
-
-        /*get host use case
-        GetHostListUseCase getHostUseCase = new GetHostListUseCase();
-        ArrayList<Host> hostList = getHostUseCase.run();
-        CheckHostUseCase checkHostUseCase = new CheckHostUseCase();
-        for(Integer i=0 ; i<hostList.size() ; i++){
-            checkHostUseCase.run(hostList.get(i));
-        }*/
-
-        /*monitoring use case
-        GetHostListUseCase getHostUseCase = new GetHostListUseCase();
-        ArrayList<Host> hostList = getHostUseCase.run();
-        MonitoringUseCase monitoringUseCase = new MonitoringUseCase();
-        monitoringUseCase.run(hostList);*/
-
-        /*add host with contact use case
-        Contact contact = new ContactBuilder.newInstance().
-                contactName("賴偉程").
-                email("test@ntut.edu.tw").
-                build();
-        AddHostUseCase addHostUseCase = new AddHostUseCase();
-        addHostUseCase.run("Local","140.124.181.11000","ping",5, contact);
-        GetHostListUseCase getHostUseCase = new GetHostListUseCase();
-        ArrayList<Host> hostList = getHostUseCase.run();*/
-
-        /*add notify*/
-
-        HostManagementUseCase hostManagementUseCase = new HostManagementUseCase();
-        MonitoringUseCase monitoringUseCase = new MonitoringUseCase(hostManagementUseCase.GetHostList());
-        monitoringUseCase.run();
-
+        MonitoringUseCase.Use().Start();
         ArrayList<DataOutputStream> clientOutputStreams = new ArrayList<DataOutputStream>();
         try{
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -70,7 +31,7 @@ public class App
                     try {
                         DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
                         clientOutputStreams.add(dos);
-                        Thread thread = new Thread(threadGroup,new CilentRequireHandler(clientSocket, clientOutputStreams, hostManagementUseCase, monitoringUseCase));
+                        Thread thread = new Thread(threadGroup,new CilentRequireHandler(clientSocket, clientOutputStreams));
                         thread.start();
                         System.out.println("目前共:"+threadGroup.activeCount()+"個請求");
                     } catch (Exception e) {

@@ -17,15 +17,11 @@ import java.util.Map;
 public class CilentRequireHandler implements Runnable{
     DataInputStream dis;
     ArrayList<DataOutputStream> clientOutputStreams = new ArrayList<DataOutputStream>();
-    HostManagementUseCase hostManagementUseCase;
-    MonitoringUseCase monitoringUseCase;
     Gson gson = new Gson();
     protected Socket clientSocket;
-    public CilentRequireHandler(Socket clientSocket, ArrayList<DataOutputStream> clientOutputSteams, HostManagementUseCase hostManagementUseCase, MonitoringUseCase monitoringUseCase){
+    public CilentRequireHandler(Socket clientSocket, ArrayList<DataOutputStream> clientOutputSteams){
         this.clientOutputStreams=clientOutputStreams;
         this.clientSocket=clientSocket;
-        this.hostManagementUseCase = hostManagementUseCase;
-        this.monitoringUseCase = monitoringUseCase;
         try{
             dis = new DataInputStream(clientSocket.getInputStream());
         }catch(Exception e) {
@@ -47,24 +43,22 @@ public class CilentRequireHandler implements Runnable{
 
                 /*socket get action monitor, return all the host*/
                 if(action.equals("monitor")){
-                    response =  "{ \"result\" : "+getHostListJson(this.hostManagementUseCase.GetHostListDTO())+" }";
+                    response =  "{ \"result\" : "+getHostListJson(HostManagementUseCase.Use().GetHostListDTO())+" }";
                 }
 
                 /*socket get action create, create a host*/
                 else if(action.equals("create")){
                     HostInputDTO hostInputDTO=setHostInputDTO(clientMsg);
-                    response=this.hostManagementUseCase.AddHost(hostInputDTO);
-                    monitoringUseCase.updateHost(this.hostManagementUseCase.GetHostList());
-                    monitoringUseCase.run();
+                    response = HostManagementUseCase.Use().AddHost(hostInputDTO);
+                    MonitoringUseCase.Use().ReStart();
                 }
 
                 /*socket get action delete, delete a host*/
                 else if(action.equals("delete")){
                     String ip = clientMsg.get("hostIp");
                     System.out.println(ip);
-                    response=this.hostManagementUseCase.DeleteHost(ip);
-                    monitoringUseCase.updateHost(this.hostManagementUseCase.GetHostList());
-                    monitoringUseCase.run();
+                    response = HostManagementUseCase.Use().DeleteHost(ip);
+                    MonitoringUseCase.Use().ReStart();
                 }
 
                 /*return msg to client*/

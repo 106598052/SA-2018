@@ -13,8 +13,21 @@ import ntut.sa2018.Others.HostManagement.HostManagementDirector;
 import java.util.ArrayList;
 
 public class HostManagementUseCase {
-    private HostManagementRepository hostRepository = HostManagementDirector.StorageBuild();
-    private ArrayList<Host> hostList = hostRepository.getHost();
+    private static HostManagementUseCase instance = null;
+    private HostManagementRepository hostRepository;
+    private ArrayList<Host> hostList;
+
+    private HostManagementUseCase(){
+        hostRepository = HostManagementDirector.StorageBuild();
+        hostList = hostRepository.getHost();
+    }
+
+    public static HostManagementUseCase Use() {
+        if (instance == null) {
+            instance = new HostManagementUseCase();
+        }
+        return instance;
+    }
 
     public ArrayList<HostOutputDTO> GetHostListDTO(){
         //use the storage way to get the host list
@@ -49,7 +62,7 @@ public class HostManagementUseCase {
             Host host = new HostBuilder.newInstance().
                     name(hostInputDTO.hostName).
                     address(hostInputDTO.hostIp).
-                    checkCommand("Console").
+                    checkCommand("Reachable").
                     checkInterval(5).
                     contact(contactArrayList).
                     build();
